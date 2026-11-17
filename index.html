@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wave Snack – ดูซอง 360° และ AR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg1:#fff4e0; --bg2:#ffd9a8; --ink:#2a1608; --card:rgba(255,255,255,.88);
+  --accent:#d81f26; --accent2:#f5a30a; --line:rgba(42,22,8,.15);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg1:#2b1410; --bg2:#12090a; --ink:#fff1de; --card:rgba(40,22,18,.88); --line:rgba(255,241,222,.18); }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:"Prompt",system-ui,sans-serif; color:var(--ink);
+  background:radial-gradient(circle at 50% 35%,var(--bg1),var(--bg2));
+  display:flex; flex-direction:column; overflow:hidden;
+  padding-top:env(safe-area-inset-top,0px);
+}
+header{padding:14px 18px 4px; text-align:center}
+header h1{margin:0; font-size:1.35rem; font-weight:700; letter-spacing:.02em}
+header h1 span{color:var(--accent)}
+header p{margin:2px 0 0; font-size:.85rem; opacity:.75}
+main{position:relative; flex:1; min-height:0}
+model-viewer{width:100%; height:100%; --poster-color:transparent; background:transparent; touch-action:pan-y}
+#bar{position:absolute; left:0; right:0; top:0; height:4px; background:transparent}
+#bar i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .2s}
+#msg{position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center; padding:24px}
+.panel{
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  max-width:min(94vw,640px); padding:10px; border-radius:18px;
+  background:var(--card); border:1px solid var(--line); backdrop-filter:blur(8px);
+}
+button,.btn{
+  font:inherit; font-size:.9rem; color:var(--ink); cursor:pointer;
+  border:1px solid var(--line); background:transparent; padding:9px 14px; border-radius:12px;
+}
+button.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+#ar-btn{background:var(--accent2); color:#2a1608; font-weight:700; border:0; position:absolute; right:14px; top:14px; padding:11px 16px; border-radius:14px}
+#qr{
+  position:absolute; right:14px; top:14px; display:none; text-align:center; font-size:.8rem;
+  background:var(--card); border:1px solid var(--line); padding:12px; border-radius:16px; width:170px;
+}
+#qr div{display:flex; justify-content:center; background:#fff; padding:8px; border-radius:10px; margin-bottom:8px}
+#tip{
+  position:absolute; left:12px; right:12px; top:12px; display:none; font-size:.85rem;
+  background:var(--accent2); color:#2a1608; padding:10px 14px; border-radius:12px; z-index:3;
+}
+#hint{position:absolute; left:0; right:0; bottom:calc(96px + env(safe-area-inset-bottom,0px)); text-align:center; font-size:.8rem; opacity:.65; pointer-events:none}
+</style>
+</head>
+<body>
+<header>
+  <h1><span>Wave</span> Snack</h1>
+  <p>ลากเพื่อหมุนดู 360° • บีบนิ้วเพื่อซูม</p>
+</header>
+
+<main>
+  <div id="bar"><i></i></div>
+  <div id="tip"></div>
+
+  <model-viewer id="mv" src="Wave_Snack.glb" alt="ซองขนม Wave Snack 2 รส"
+    camera-controls auto-rotate auto-rotate-delay="1500" rotation-per-second="25deg"
+    interaction-prompt="none" shadow-intensity="1" shadow-softness="0.9" exposure="1.05"
+    environment-image="neutral" camera-orbit="0deg 78deg auto" min-field-of-view="10deg"
+    ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor">
+    <button slot="ar-button" id="ar-btn">📱 ดูซองในห้องของคุณ (AR)</button>
+  </model-viewer>
+
+  <div id="qr"><div id="qrcode"></div>สแกนด้วยมือถือ<br>เพื่อดูแบบ AR</div>
+  <div id="msg"><p>โหลดโมเดลไม่สำเร็จ<br>ตรวจสอบว่ามีไฟล์ <b>Wave_Snack.glb</b> อยู่โฟลเดอร์เดียวกับ index.html</p></div>
+  <div id="hint">ลากซ้าย-ขวาเพื่อหมุนซอง</div>
+
+  <div class="panel">
+    <button data-v="all" class="on">ทั้งสองห่อ</button>
+    <button data-v="left">ปลาหมึกย่าง</button>
+    <button data-v="right">มะเขือเทศ</button>
+    <button id="spin">⏸ หยุดหมุน</button>
+  </div>
+</main>
+
+<script>
+const mv = document.getElementById('mv');
+const $ = s => document.querySelector(s);
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                 (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+
+// เบราว์เซอร์ในแอป (LINE / Facebook ฯลฯ) มักเปิด AR ไม่ได้
+if (/FBAN|FBAV|Line\/|Instagram|MicroMessenger/i.test(navigator.userAgent)) {
+  const t = $('#tip');
+  t.style.display = 'block';
+  t.textContent = 'ถ้ากด AR ไม่ได้ ให้แตะเมนู ⋯ แล้วเลือก "เปิดในเบราว์เซอร์" (Chrome / Safari)';
+}
+
+mv.addEventListener('progress', e => {
+  const p = e.detail.totalProgress;
+  $('#bar i').style.width = (p * 100) + '%';
+  if (p >= 1) setTimeout(() => $('#bar').style.display = 'none', 400);
+});
+mv.addEventListener('error', () => { $('#msg').style.display = 'flex'; });
+
+let center, dims;
+mv.addEventListener('load', () => {
+  center = mv.getBoundingBoxCenter();
+  dims = mv.getDimensions();
+  if (!mv.canActivateAR) {
+    $('#ar-btn').style.display = 'none';
+    if (!isMobile) {                       // คอมพิวเตอร์: แสดง QR ให้สแกนด้วยมือถือ
+      $('#qr').style.display = 'block';
+      new QRCode($('#qrcode'), { text: location.href.split('#')[0], width: 130, height: 130 });
+    } else {
+      const t = $('#tip');
+      t.style.display = 'block';
+      t.textContent = 'เครื่องนี้ยังไม่รองรับ AR ลองใช้ Chrome (Android) หรือ Safari (iPhone)';
+    }
+  }
+});
+
+// ปุ่มเลือกมุมมอง: ทั้งสองห่อ / ซองซ้าย / ซองขวา
+document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => {
+  if (!center) return;
+  document.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b));
+  const v = b.dataset.v;
+  const dx = v === 'left' ? -dims.x / 4 : v === 'right' ? dims.x / 4 : 0;
+  const r = v === 'all' ? 'auto' : Math.max(dims.y * 2.4, 0.4) + 'm';
+  mv.cameraTarget = `${center.x + dx}m ${center.y}m ${center.z}m`;
+  mv.cameraOrbit = `0deg 78deg ${r}`;
+}));
+
+$('#spin').addEventListener('click', e => {
+  mv.autoRotate = !mv.autoRotate;
+  e.target.textContent = mv.autoRotate ? '⏸ หยุดหมุน' : '▶ หมุนอัตโนมัติ';
+});
+mv.addEventListener('camera-change', e => { if (e.detail.source === 'user-interaction') $('#hint').style.display = 'none'; });
+</script>
+</body>
+</html>
