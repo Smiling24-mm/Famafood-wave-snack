@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#650b13">
+<title>Wave Snack — 3D Experience</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--ink:#fff5f4;--muted:rgba(255,235,235,.72);--red:#f02b3a;--gold:#ffb0a8;--panel:rgba(48,8,15,.78);--line:rgba(255,225,225,.19)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;min-height:100%;font-family:'Prompt',sans-serif;color:var(--ink);background:#19070b}
+body{overflow:hidden;isolation:isolate}
+/* Warm, cinematic food-studio backdrop: layered light, subtle grain and moving highlights */
+.scene-bg{position:fixed;inset:0;z-index:-5;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#9d1828 0%,#65101d 34%,#300b13 72%,#16060a 100%)}
+.scene-bg:before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 52% 42%,rgba(255,125,137,.28),transparent 32%),radial-gradient(ellipse at 15% 75%,rgba(225,24,54,.28),transparent 35%),radial-gradient(ellipse at 88% 18%,rgba(255,178,184,.15),transparent 28%);filter:blur(18px);animation:ambient 13s ease-in-out infinite alternate}
+.scene-bg:after{content:"";position:absolute;inset:-40%;background:linear-gradient(112deg,transparent 38%,rgba(255,155,165,.08) 48%,rgba(255,215,218,.17) 50%,transparent 58%);transform:translateX(-35%) rotate(-8deg);animation:lightSweep 17s ease-in-out infinite}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+.orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.42;pointer-events:none}
+.orb.one{width:38vw;height:38vw;min-width:280px;min-height:280px;right:-9vw;top:8%;background:radial-gradient(circle at 35% 35%,rgba(255,130,145,.28),rgba(255,45,75,.035) 66%,transparent 70%);animation:floatA 19s ease-in-out infinite}
+.orb.two{width:30vw;height:30vw;min-width:230px;min-height:230px;left:-10vw;bottom:-8%;background:radial-gradient(circle at 60% 40%,rgba(230,25,60,.30),transparent 70%);animation:floatB 23s ease-in-out infinite}
+@keyframes ambient{to{transform:scale(1.12) translate3d(1%,-1%,0)}}
+@keyframes lightSweep{0%,25%{transform:translateX(-48%) rotate(-8deg)}75%,100%{transform:translateX(48%) rotate(-8deg)}}
+@keyframes floatA{50%{transform:translate(-5%,7%) scale(1.08)}}@keyframes floatB{50%{transform:translate(8%,-6%) scale(.94)}}
+.page{height:100dvh;min-height:560px;display:flex;flex-direction:column;padding:22px clamp(18px,4vw,64px) 24px;position:relative}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;z-index:4}
+.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#ff9ca5,#c70d2b);box-shadow:0 8px 26px #e51d3b66;position:relative;overflow:hidden}
+.brand-mark:before,.brand-mark:after{content:"";position:absolute;width:28px;height:7px;left:7px;border-radius:100%;background:#fff1d5;transform:rotate(-28deg)}.brand-mark:before{top:12px}.brand-mark:after{top:23px;left:11px;width:22px}
+.brand-name{font-size:1.12rem;font-weight:700;letter-spacing:.08em}.brand-name span{color:#ff9ca5}.brand-sub{font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:1px}
+.header-note{font-size:.76rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line);padding:9px 15px;border-radius:999px;background:#ffffff0a;backdrop-filter:blur(12px)}
+main{position:relative;flex:1;min-height:0;display:grid;grid-template-columns:minmax(210px, .82fr) minmax(360px,1.6fr) minmax(190px,.72fr);align-items:center;gap:clamp(8px,2vw,30px)}
+.intro{z-index:2;align-self:center;padding-bottom:35px}.eyebrow{display:flex;align-items:center;gap:10px;color:#ff9ca5;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}.eyebrow:before{content:"";height:1px;width:26px;background:#ff9ca5}
+h1{font-size:clamp(2.5rem,5vw,5.3rem);line-height:.98;margin:18px 0 16px;letter-spacing:-.055em;font-weight:700}h1 span{display:block;color:#ff9ca5}.intro-copy{max-width:310px;font-size:.9rem;line-height:1.85;color:var(--muted);font-weight:300}.feature-line{margin-top:27px;display:flex;align-items:center;gap:12px;color:#ffe1b7;font-size:.76rem}.feature-line:before{content:"";width:7px;height:7px;border-radius:50%;background:#ff9ca5;box-shadow:0 0 13px #ffc46e}
+.viewer-wrap{position:relative;height:100%;min-height:360px;display:flex;align-items:center;justify-content:center;isolation:isolate}
+.viewer-wrap:before{content:"";position:absolute;width:min(72%,560px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,75,100,.27),rgba(205,15,48,.12) 42%,transparent 70%);filter:blur(15px);z-index:-1;animation:pulse 5s ease-in-out infinite}
+.viewer-wrap:after{content:"";position:absolute;width:min(70%,500px);height:36px;bottom:14%;border-radius:50%;background:rgba(10,5,4,.65);filter:blur(22px);z-index:-1}
+@keyframes pulse{50%{transform:scale(1.1);opacity:.7}}
+model-viewer{width:100%;height:100%;min-height:380px;background:transparent;--poster-color:transparent;--progress-bar-color:#f5ae36;--progress-mask:transparent;outline:none;touch-action:pan-y}
+#progress{position:absolute;top:0;left:8%;right:8%;height:2px;background:#ffffff18;overflow:hidden;border-radius:9px;z-index:5}#progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,#ed1738,#ff9ca5);transition:width .2s}
+#loading{position:absolute;z-index:3;color:#ffe1e4;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;pointer-events:none;transition:opacity .4s}
+#error{display:none;position:absolute;z-index:5;max-width:330px;text-align:center;padding:22px;border:1px solid var(--line);border-radius:18px;background:#390812ef;color:#fff}
+.details{z-index:2;align-self:center;margin-bottom:24px;padding:22px 20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(116,16,32,.78),rgba(35,6,14,.78));box-shadow:0 18px 55px #0b050433;backdrop-filter:blur(18px)}
+.details-label{font-size:.65rem;letter-spacing:.2em;color:#ff9ca5;text-transform:uppercase}.details h2{font-size:1.15rem;margin:8px 0 6px}.details p{font-size:.78rem;line-height:1.7;color:var(--muted);margin:0}.detail-rule{height:1px;background:var(--line);margin:17px 0}.detail-row{display:flex;justify-content:space-between;gap:10px;font-size:.72rem;margin:9px 0;color:var(--muted)}.detail-row strong{color:#fff2df;font-weight:500}
+#ar-btn{position:absolute;right:0;top:20px;z-index:5;border:0;border-radius:13px;padding:12px 17px;background:linear-gradient(110deg,#ff6878,#e71939);color:#fff7f7;font:600 .82rem 'Prompt';box-shadow:0 8px 24px #e7193945;cursor:pointer;transition:transform .2s,filter .2s}#ar-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
+#qr{display:none;position:absolute;right:0;top:76px;z-index:5;width:164px;padding:12px;text-align:center;background:#fff;color:#3a0710;border-radius:15px;font-size:.72rem;box-shadow:0 10px 35px #0005}#qrcode{display:flex;justify-content:center;padding:7px;background:#fff;border-radius:8px;margin-bottom:7px}
+.controls{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:7px;padding:7px;border:1px solid var(--line);border-radius:17px;background:rgba(49,7,16,.86);backdrop-filter:blur(18px);box-shadow:0 12px 38px #08040355;max-width:96%;white-space:nowrap}
+.controls button{font:500 .77rem 'Prompt';color:#f9e9d6;border:1px solid transparent;background:transparent;padding:10px 15px;border-radius:11px;cursor:pointer;transition:background .2s,color .2s,border .2s}.controls button:hover{background:#ffffff12}.controls button.active{background:linear-gradient(120deg,#f02b45,#a80725);color:white;box-shadow:0 4px 16px #ed173855}.controls .divider{width:1px;height:25px;background:var(--line);margin:0 2px}.controls .utility{color:#ff9ca5}
+#tip{display:none;position:absolute;left:50%;top:18px;transform:translateX(-50%);z-index:7;background:#ff9ca5;color:#2b160c;border-radius:10px;padding:9px 14px;font-size:.75rem;width:max-content;max-width:90%;text-align:center}
+footer{display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:.65rem;color:#ffffff70;letter-spacing:.12em;text-transform:uppercase;z-index:2}footer .drag{display:flex;align-items:center;gap:9px}footer .drag:before{content:"";width:24px;height:1px;background:#ff9ca5}
+@media(max-width:900px){.page{padding:16px 20px 18px}main{grid-template-columns:minmax(150px,.75fr) minmax(300px,1.4fr);gap:8px}.intro{padding-bottom:60px}.details{display:none}.viewer-wrap{grid-column:2;grid-row:1}#ar-btn{right:5px}h1{font-size:clamp(2.2rem,6vw,4rem)}}
+@media(max-width:600px){body{overflow:auto}.page{height:100svh;min-height:620px;padding:13px 14px 14px}header{align-items:flex-start}.brand-mark{width:36px;height:36px}.brand-name{font-size:.98rem}.brand-sub{font-size:.55rem}.header-note{font-size:.58rem;padding:7px 10px}main{display:flex;flex-direction:column;justify-content:flex-start;gap:0}.intro{width:100%;padding:20px 4px 0;text-align:center}.eyebrow{justify-content:center;font-size:.6rem}.eyebrow:before{display:none}h1{font-size:2.45rem;margin:9px 0 5px}.intro-copy{font-size:.72rem;line-height:1.5;max-width:310px;margin:auto}.feature-line{display:none}.viewer-wrap{width:100%;flex:1;min-height:280px;margin-top:-4px}.viewer-wrap:after{bottom:9%}model-viewer{min-height:280px}#ar-btn{top:10px;right:0;padding:9px 12px;font-size:.7rem}.controls{bottom:12px;gap:3px;padding:5px;border-radius:14px}.controls button{font-size:.66rem;padding:9px 10px}.controls .divider{height:20px}footer{font-size:.55rem;padding-bottom:2px}#qr{top:55px;right:0;width:145px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="scene-bg"><div class="orb one"></div><div class="orb two"></div></div><div class="grain"></div>
+<div class="page">
+<header>
+  <div class="brand"><div class="brand-mark" aria-hidden="true"></div><div><div class="brand-name">WAVE <span>SNACK</span></div><div class="brand-sub">Crunch into the wave</div></div></div>
+  <div class="header-note">3D Product Experience</div>
+</header>
+<main>
+  <section class="intro"><div class="eyebrow">Discover the taste</div><h1>Wave<span>Snack.</span></h1><p class="intro-copy">สัมผัสประสบการณ์ชมบรรจุภัณฑ์ Wave Snack ในรูปแบบสามมิติ หมุนดูได้รอบทิศทาง พร้อมทดลองวางสินค้าในพื้นที่จริงด้วย AR</p><div class="feature-line">Explore every angle in 360°</div></section>
+  <section class="viewer-wrap" aria-label="โมเดลผลิตภัณฑ์สามมิติ">
+    <div id="progress"><i></i></div><div id="loading">Preparing your experience</div>
+    <model-viewer id="mv" src="WaveSnack_3DV2.glb" alt="บรรจุภัณฑ์ขนม Wave Snack" camera-controls auto-rotate auto-rotate-delay="1300" rotation-per-second="18deg" interaction-prompt="none" shadow-intensity="1.1" shadow-softness="0.9" exposure="1.08" environment-image="neutral" camera-orbit="0deg 75deg auto" min-field-of-view="12deg" ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor">
+      <button slot="ar-button" id="ar-btn">VIEW IN YOUR SPACE</button>
+    </model-viewer>
+    <div id="error">ไม่สามารถโหลดโมเดลได้<br>โปรดตรวจสอบว่าไฟล์ <b>WaveSnack_3DV2.glb</b> อยู่ในโฟลเดอร์เดียวกับ index.html</div>
+  </section>
+  <aside class="details"><div class="details-label">The product</div><h2>Wave Snack Collection</h2><p>เลือกชมดีไซน์บรรจุภัณฑ์และรายละเอียดของแต่ละรสชาติได้จากแถบควบคุมด้านล่าง</p><div class="detail-rule"></div><div class="detail-row"><span>Experience</span><strong>Interactive 3D</strong></div><div class="detail-row"><span>View</span><strong>360° Rotation</strong></div><div class="detail-row"><span>AR Mode</span><strong>Mobile Supported</strong></div></aside>
+  <div id="qr"><div id="qrcode"></div>สแกนด้วยมือถือเพื่อเปิดประสบการณ์ AR</div>
+  <div id="tip"></div>
+  <nav class="controls" aria-label="ตัวเลือกมุมมอง"><button data-view="all" class="active">ทั้งหมด</button><button data-view="left">ปลาหมึกย่าง</button><button data-view="right">มะเขือเทศ</button><span class="divider"></span><button id="spin" class="utility">หยุดหมุน</button></nav>
+</main>
+<footer><span>WAVE SNACK · 3D EXPERIENCE</span><span class="drag">Drag to explore</span></footer>
+</div>
+<script>
+const mv=document.getElementById('mv');
+const $=s=>document.querySelector(s);
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform));
+if(/FBAN|FBAV|Line\/|Instagram|MicroMessenger/i.test(navigator.userAgent)){const t=$('#tip');t.style.display='block';t.textContent='หากเปิด AR ไม่ได้ กรุณาเลือกเมนู ⋯ แล้วเปิดใน Chrome หรือ Safari';}
+mv.addEventListener('progress',e=>{const p=e.detail.totalProgress;$('#progress i').style.width=(p*100)+'%';if(p>=1){setTimeout(()=>$('#progress').style.opacity='0',450);$('#loading').style.opacity='0';}});
+mv.addEventListener('error',()=>{$('#error').style.display='block';$('#loading').style.display='none';});
+let center=null,dims=null;
+mv.addEventListener('load',()=>{center=mv.getBoundingBoxCenter();dims=mv.getDimensions();$('#loading').style.display='none';if(!mv.canActivateAR){$('#ar-btn').style.display='none';if(!isMobile&&window.QRCode){$('#qr').style.display='block';new QRCode($('#qrcode'),{text:location.href.split('#')[0],width:116,height:116});}else if(isMobile){const t=$('#tip');t.style.display='block';t.textContent='อุปกรณ์นี้อาจไม่รองรับ AR โปรดลองใช้ Chrome บน Android หรือ Safari บน iPhone';}}});
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(!center||!dims)return;document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===b));const v=b.dataset.view;const dx=v==='left'?-dims.x/4:v==='right'?dims.x/4:0;const radius=v==='all'?'auto':Math.max(dims.y*2.4,.4)+'m';mv.cameraTarget=`${center.x+dx}m ${center.y}m ${center.z}m`;mv.cameraOrbit=`0deg 78deg ${radius}`;}));
+$('#spin').addEventListener('click',e=>{mv.autoRotate=!mv.autoRotate;e.currentTarget.textContent=mv.autoRotate?'หยุดหมุน':'หมุนอัตโนมัติ';});
+mv.addEventListener('camera-change',e=>{if(e.detail.source==='user-interaction')$('.drag').style.opacity='.35';});
+</script>
+</body>
+</html>
